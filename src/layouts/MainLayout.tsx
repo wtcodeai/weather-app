@@ -4,11 +4,11 @@ import { Body } from '../containers/Body'
 
 export const MainLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
-    <div>
+    <>
       <Header />
       <Body>
         {children}
       </Body>
-    </div>
+    </>
   )
 }

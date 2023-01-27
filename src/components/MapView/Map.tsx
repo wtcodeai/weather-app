@@ -1,21 +1,21 @@
-import { FC,useState, useEffect, useRef, createContext, createRef } from 'react';
+import { FC, useEffect, useRef, createContext, createRef } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { setGeolocation } from '../../store/slice';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
 import 'ol/ol.css';
 import XYZ from "ol/source/XYZ";
-import { TMapProps, IMapContext, TMapState } from "./types";
+import { IMapContext } from "./types";
 import "ol/ol.css";
+import styles from './styles.module.css';
 
 export const WeatherMap: FC = (() => {
 
   const MapContext = createContext<IMapContext | void>(undefined);
-
   let state = useRef({})
-
   let mapDivRef = createRef<HTMLDivElement>()
+
+  
 
 
   useEffect(() => {
@@ -44,6 +44,10 @@ export const WeatherMap: FC = (() => {
   }, []);
 
   return (
-    <div style={{height:'400px',width:'100%'}} ref={mapDivRef} className="map-container" />
+    <div 
+      style={{height:'100%',width:'100%'}} 
+      ref={mapDivRef} 
+      className={styles.mapContainer}
+    />
   );
 })

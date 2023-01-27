@@ -1,12 +1,12 @@
 export interface WeatherResponse {
   weather: WeatherSingle[]
   main: {
-    temp: 8.48,
-    feels_like: 4.9,
+    temp: number,
+    feels_like: number,
   }
 }
 
-interface WeatherSingle {
+export interface WeatherSingle {
   main: string,
   description: string,
   icon: string
