@@ -1,4 +1,4 @@
-import { FC, forwardRef, HTMLProps, useState } from 'react'
+import { FC, forwardRef, HTMLProps } from 'react'
 import { GeolocationSelect } from './GeolocationSelect';
 
 type DivProps = HTMLProps<HTMLDivElement>

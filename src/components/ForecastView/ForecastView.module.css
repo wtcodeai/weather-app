@@ -1,0 +1,32 @@
+.forecast-block {
+  height: 100%
+}
+
+.day-forecast__block {
+  height: 100%;
+  cursor: pointer;
+}
+
+.forecast-row {
+  margin-top: 75px;
+}
+
+.day-forecast__row {
+  margin-top: 75px;
+  cursor: pointer;
+}
+
+.forecast-row__item {
+  text-align: center;
+  cursor: pointer;
+  border-radius: 25px;
+  padding: 10px 0px;
+}
+
+.day-forecast__row-item {
+  text-align: center;
+}
+
+.forecast-row__item:hover {
+  box-shadow: 0 0 5px 5px #e0e7ec;
+}

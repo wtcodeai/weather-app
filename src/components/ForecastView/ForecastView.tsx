@@ -1,47 +1,62 @@
-import { FC, useEffect, useRef, createContext, createRef } from 'react';
+import { FC, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { getCurrentGeolocation, setGeolocation } from '../../store/slice';
+import { getCurrentGeolocation } from '../../store/slice';
 import Card from 'react-bootstrap/Card';
-import { getForecast, selectForecast } from './slice'
+import { 
+  getForecast, 
+  selectForecast, 
+  selectDayForecast, 
+  setDayForecast,
+  clearDayForecast
+} from './slice'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLocationArrow } from '@fortawesome/free-solid-svg-icons'
 import Image from 'react-bootstrap/Image'
 import { WEATHER_IMG_URL } from '../../config/weather';
+import styles from './ForecastView.module.css'
+import { MainForecastItem } from './slice'
 
 export const ForecastView: FC = (() => {
   const geo = useAppSelector(getCurrentGeolocation)
   const forecast = useAppSelector(selectForecast)
+  const dayForecast = useAppSelector(selectDayForecast)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     dispatch(getForecast({ lat: geo.lat, lon: geo.lon }))
+    dispatch(clearDayForecast())
   }, [geo, dispatch])
 
+  const chooseDayForecast = (f: MainForecastItem) => {
+    if (!dayForecast) dispatch(setDayForecast(f))
+  }
+
   return (
-    <Card body className="h-100">
+    <Card
+      body
+      className={dayForecast ? styles['day-forecast__block'] : styles['forecast-block']}
+      onClick={() => dayForecast && dispatch(clearDayForecast())}
+    >
       <Card.Title>
         <span>
         <h1>
-          Погода на 5 дней
+          Погода {dayForecast ? dayForecast.day : 'на 5 дней'}
         </h1>
-
         </span>
       </Card.Title>
-      <Row style={{marginTop: '75px'}}>
-        {forecast.map((f, index: number) => {
+      <Row className={styles['forecast-row']}>
+        {(dayForecast ? dayForecast.day_forecast : forecast).map((f, index: number) => {
           return (
             <Col 
               key={index}
-              style={{ textAlign: 'center' }}
+              className={dayForecast ? styles['day-forecast__row-item'] : styles['forecast-row__item']}
+              onClick={()=> chooseDayForecast(f as MainForecastItem)}
             > 
-              <h4>{f.day}</h4>
+              <h4>{!dayForecast ? f.day : f.time }</h4>
               <div>
                 { 
                   f?.icon ? 
                     <Image 
-                      style={{ width: '50px', verticalAlign: 'top' }} 
                       src={`${WEATHER_IMG_URL}${f.icon}.png`} 
                     /> : 
                     null

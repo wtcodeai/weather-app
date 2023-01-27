@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, createAction } from '@reduxjs/toolkit';
-import { RootState, AppThunk } from '../../store/store';
+import { RootState } from '../../store/store';
 import { requests } from '../../api/Requests';
 
 interface GeolocationCity {
@@ -30,7 +30,6 @@ export const getCities = createAsyncThunk(
   }
 );
 
-
 export const selectCities = (state: RootState) => state.geolocation.cities
 export const getQuery = (state: RootState) => state.geolocation.query
 
@@ -50,7 +49,6 @@ export const geolocationSelectSlice = createSlice({
       })
       .addCase(getCities.fulfilled, (state, action) => {
         state.loading = true;
-        console.log(action.payload)
         state.cities = action.payload.map(c => {
           return {
             name: c.data.city,

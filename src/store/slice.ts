@@ -54,9 +54,7 @@ export const mainSlice = createSlice({
         state.geoloc.lon = action.payload.data.geo_lon
       })
       .addCase(setGeolocation, (state, action) => {
-        console.log('setted geoloc')
         state.geoloc = { ...state.geoloc, ...action.payload }
-        console.log(state)
       })
   },
 });

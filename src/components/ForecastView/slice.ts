@@ -8,77 +8,92 @@ const DAY_FORECAST_TIME = 12
 
 interface ForecastItem {
   day: string,
+  time: string;
   icon: string;
   description: string;
   temp: number;
   feels_like: number
 }
 
-interface MainForecastItem extends ForecastItem {
+export interface MainForecastItem extends ForecastItem {
   day_forecast: ForecastItem[]
 }
 
 export interface ForecastState {
   loading: boolean,
-  forecast: ForecastItem[]
+  forecast: MainForecastItem[],
+  selected_for_day_forecast: MainForecastItem | null
 }
+
+interface ChildrenForecasts {
+  children: ForecastSingle[];
+} 
 
 const initialState: ForecastState = {
   loading: false,
-  forecast: []
+  forecast: [],
+  selected_for_day_forecast: null
 };
 
-const parseForecast = (data: ForecastSingle[]) => {
+const parseForecastItem = (val: ForecastSingle): ForecastItem => {
+  const w = val.weather[0]
+  const date = new Date(val.dt_txt)
+  const options = { month: 'short', day: 'numeric' }
+  //@ts-ignore
+  const mo = new Intl.DateTimeFormat('ru-RU', options).format(date)
+  const dayOfWeek = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' }).format(date)
+  let dayDesk = dayOfWeek + ', ' + mo
   const x = new Date()
   const curd = x.getUTCDate()
-  const currentForecast = data.filter(d => {
-    const date = new Date(d.dt*1000)
-    const day = date.getUTCDate()
-    return curd !== day
-  })
+  const compd = date.getUTCDate()
+  const [t1, t2] = val.dt_txt.split(' ')[1].split(':')
+
+  if (curd === compd) {
+    dayDesk = 'Сегодня'
+  }
+  const toReturn = {
+    day: dayDesk,
+    icon: w.icon,
+    time: `${t1}:${t2}`,
+    description: w.description,
+    temp: val.main.temp,
+    feels_like: val.main.feels_like,
+  }
+  return toReturn
+}
+
+const parseForecast = (data: ForecastSingle[]) => {
   const dates = data.map(d => d.dt_txt.split(' ')[0])
   const udates = [...new Set(dates)]
-  const result: any = []
+  const result: Array<ForecastSingle & ChildrenForecasts> = []
   udates.forEach(dt => {
     let dayres = data.filter(fo => {
       return fo.dt_txt.startsWith(dt)
     })
-    let founded = dayres.find(time => {
-      const ft = +time.dt_txt.split(' ')[1].split(':')[0]
+    const comp = (t: ForecastSingle) => {
+      const ft = +t.dt_txt.split(' ')[1].split(':')[0]
       return ft === DAY_FORECAST_TIME
-    })
+    }
+    let founded = dayres.find(time => comp(time))
+    let other = dayres.filter(time => !comp(time))
     if (!founded) founded = dayres[dayres.length-1]
-    result.push(founded)
+    const mainForecast = { ...founded, children: other }
+    result.push(mainForecast)
   })
-  const parsedResult = result.map((val: ForecastSingle) => {
-    const w = val.weather[0]
-    var date = new Date(val.dt_txt)
-    const options = { month: 'short', day: 'numeric' }
-    //@ts-ignore
-    const mo = new Intl.DateTimeFormat('ru-RU', options).format(date)
-    const dayOfWeek = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' }).format(date)
-    let dayDesk = dayOfWeek + ', ' + mo
-    const x = new Date()
-    const curd = x.getUTCDate()
-    const dat = new Date(val.dt*1000)
-    const compd = date.getUTCDate()
-    if (curd === compd) {
-      dayDesk = 'Сегодня'
+  const parsedResult = result.map((val) => {
+    const { children, ...data} = val
+    const fci: MainForecastItem = { 
+      ...parseForecastItem(data), 
+      day_forecast: children.map(d => parseForecastItem(d)) 
     }
-    const toReturn = {
-      day: dayDesk,
-      icon: w.icon,
-      description: w.description,
-      temp: val.main.temp,
-      feels_like: val.main.feels_like
-    }
-    return toReturn
+    return fci
   })
   console.log('RESULT', parsedResult)
   return parsedResult
 }
 
 
+export const setDayForecast = createAction<MainForecastItem>('forecast/setDayForecast')
 export const getForecast = createAsyncThunk(
   'forecast/fetchForecast',
   async (coords: Coordinates) => {
@@ -88,12 +103,15 @@ export const getForecast = createAsyncThunk(
 );
 
 export const selectForecast = (state: RootState) => state.forecast.forecast
+export const selectDayForecast = (state: RootState) => state.forecast.selected_for_day_forecast
 
 export const forecastSlice = createSlice({
-  name: 'geolocationSelect',
+  name: 'forecast',
   initialState,
   reducers: {
-
+    clearDayForecast: (state) => {
+      state.selected_for_day_forecast = null
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -109,7 +127,12 @@ export const forecastSlice = createSlice({
       .addCase(getForecast.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(setDayForecast, (state, action) => {
+        state.selected_for_day_forecast = action.payload
+      })
   },
 });
+
+export const { clearDayForecast } = forecastSlice.actions
 
 export default forecastSlice.reducer;

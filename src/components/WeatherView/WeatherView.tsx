@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, createContext, createRef } from 'react';
+import { FC, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { getCurrentGeolocation, defineGeolocation } from '../../store/slice';
 import Card from 'react-bootstrap/Card';
@@ -7,6 +7,7 @@ import { faLocationArrow } from '@fortawesome/free-solid-svg-icons'
 import { getWeather, selectWeather } from './slice';
 import Image from 'react-bootstrap/Image'
 import { WEATHER_IMG_URL } from '../../config/weather';
+import styles from './WeatherView.module.css'
 
 export const WeatherView: FC = (() => {
   const geo = useAppSelector(getCurrentGeolocation)
@@ -23,9 +24,9 @@ export const WeatherView: FC = (() => {
         <span>
         <h1>
           {geo.name}: погода сейчас
-          <span style={{float: 'right', cursor: 'pointer'}}>
+          <span className={styles['geoloc-icon__span']}>
             <FontAwesomeIcon 
-              style={{ fontSize: '24px'}}
+              className={styles['geoloc-icon']}
               icon={faLocationArrow}
               onClick={() => dispatch(defineGeolocation())}
             />
@@ -35,13 +36,13 @@ export const WeatherView: FC = (() => {
         </span>
       </Card.Title>
       <div 
-        style={{ fontSize: '42px', display: 'inline-block' }}
+        className={styles['temp-block']}
       >
         { weather.temp }°
       </div> 
       { 
         weather?.icon ? 
-        <Image style={{ width: '50px', verticalAlign: 'top' }} src={`${WEATHER_IMG_URL}${weather.icon}.png`} /> : 
+        <Image className={styles['aligned-image']} src={`${WEATHER_IMG_URL}${weather.icon}.png`} /> : 
         null
       }
 

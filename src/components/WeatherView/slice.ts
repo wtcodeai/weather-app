@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, createAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
 import { requests } from '../../api/Requests';
 import { Coordinates } from '../../api/dto/CityCoordinates.dto';
@@ -57,7 +57,6 @@ export const weatherSlice = createSlice({
           temp: mainWeather.temp,
           feels_like: mainWeather.feels_like
         }
-        console.log('w', w)
         state.weather = { ...state.weather, ...w }
       })
       .addCase(getWeather.rejected, (state) => {
