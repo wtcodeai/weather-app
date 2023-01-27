@@ -28,19 +28,23 @@ export const GeolocationSelect: FC<IProps> = (({ resetState }) => {
         onChange={(e) => dispatch(setQuery(e.target.value))}
         value={query} 
       />
-      <ul className="list-unstyled">
-        {cities.map((c, index: number) => {
-          return (
-            <Dropdown.Item 
-              key={index}
-              eventKey={index}
-              onClick={() => dispatch(setGeolocation(c))}
-            >
-              {c.name} 
-            </Dropdown.Item>
-          )
-        })}
-      </ul>
+      { 
+        cities.length ? 
+        <ul className="list-unstyled">
+          {cities.map((c, index: number) => {
+            return (
+              <Dropdown.Item 
+                key={index}
+                eventKey={index}
+                onClick={() => dispatch(setGeolocation(c))}
+              >
+                {c.name} 
+              </Dropdown.Item>
+            )
+          })}
+        </ul> :
+        <span className="ms-3"> Нет результатов </span>
+      }
     </>
   )
 })
